@@ -1,5 +1,5 @@
 # Report of Assignment 2: Sentimental Analysis
-Qiuzhen College, Tsinghua University, imofelrj, li-rj22@mails.tsinghua.edu.cn, May 6th, 2025
+Qiuzhen College, Tsinghua University, imofelrj, li-rj22@mails.tsinghua.edu.cn, May 7th, 2025
 
 ## Abstract
 This report presents the results of a sentiment analysis project using RNNs, CNNs, and MLPs, with the framework PyTorch. The project aims to classify text data into positive or negative sentiments.
@@ -12,15 +12,41 @@ The class ```TextDataset```, a subclass of ```torch.utils.data.Dataset```, is us
 ### CNN
 There are in total 3 convolutional layers, with kernel sizes of 3, 4, and 5. The output of each convolutional layer is passed through a ReLU activation function and a max pooling layer. The output of the max pooling layer is then concatenated and passed through a fully connected layer. A dropout layer is added to prevent overfitting.
 
+```mermaid
+graph TD
+    A[Input Sentence] --> B[Embedding Layer]
+    B --> C[Convolution 1D kernel=3]
+    B --> D[Convolution 1D kernel=4]
+    B --> E[Convolution 1D kernel=5]
+    C --> F[Max Pooling]
+    D --> F
+    E --> F
+    F --> G[Concatenate]
+    G --> |Dropout| H[Fully Connected Layer]
+    H --> I[Output]
+```
+
 ### RNN
-LSTM is recurrent, which means it takes the output of the previous time step as input for the current time step. We take the last output of the LSTM as the output of the model. The output is passed through a fully connected layer and a dropout layer. The hidden size is set to 128, and the dropout rate is set to 0.5.
+LSTM is recurrent, which means it takes the output of the previous time step as input for the current time step. We take the final hidden state of the LSTM as the output of the model, because we believe it contains the whole message of the sentence. The output is passed through a fully connected layer and a dropout layer. The hidden size is set to 128, and the dropout rate is set to 0.5.
+
+```mermaid
+graph TD
+    A[Input Sentence e.g. 我 很 喜欢 电影] --> B[Embedding Layer]
+    B --> C1[LSTM Cell t=1]
+    C1 --> C2[LSTM Cell t=2]
+    C2 --> C3[LSTM Cell t=3]
+    C3 --> C4[LSTM Cell t=4]
+    C4 --> H[Final Hidden State h_T]
+    H --> |Dropout| F[Fully Connected Layer]
+    F --> O[Output]
+```
 
 ### MLP
 The embedding layer maps the sentence to a tensor of size ```[1,10,128]```, and take the mean of the tensor along the first dimension. The output is passed through a fully connected layer with a ReLU activation function and a dropout layer. The output of the dropout layer is then passed through another fully connected layer. The hidden size is set to 128, and the dropout rate is set to 0.5.
 
 ## Results
 The models are trained for 5 epochs, with a batch size of 32. The learning rate is set to 0.001. The training and validation loss are recorded for each epoch. The accuracy of the models is evaluated on the test set.
-The results are shown in the following table:
+The results are shown in the following table, with useful functions from ```sklearn.metrics```:
 | Model | Test Accuracy | Test Precision | Test Recall | Test F1 Score |
 |-------|---------------|----------------|-------------|---------------|
 | CNN   | 0.7507         | 0.7509          | 0.7507        | 0.7507          |
